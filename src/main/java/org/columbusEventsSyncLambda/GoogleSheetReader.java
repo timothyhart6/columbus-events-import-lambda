@@ -19,25 +19,47 @@ import java.util.Collections;
 @Slf4j
 public class GoogleSheetReader {
 
-    private static final String SHEET_ID = System.getenv("COLUMBUS_GOOGLE_SHEET_ID");
-    private static final String RANGE = "A2:D";
+    HttpRequestFactory requestFactory;
 
-    public static String fetchSheetData() throws IOException {
-        GoogleCredentials credentials = loadGoogleCredentials();
-        HttpTransport transport = new NetHttpTransport();
-        HttpRequestFactory requestFactory = transport.createRequestFactory(new HttpCredentialsAdapter(credentials));
-
-        String url = String.format(
-                "https://sheets.googleapis.com/v4/spreadsheets/%s/values/%s",
-                SHEET_ID, RANGE
-        );
-
-        GenericUrl genericUrl = new GenericUrl(url);
-        HttpResponse response = requestFactory.buildGetRequest(genericUrl).execute();
-        return response.parseAsString();
+    public GoogleSheetReader() {
+        this.requestFactory = getHttpRequestFactory();
     }
 
-    private static GoogleCredentials loadGoogleCredentials() throws IOException {
+
+//  Used for testing purposes
+    public GoogleSheetReader(HttpRequestFactory requestFactory) {
+        this.requestFactory = requestFactory;
+    }
+
+    public String fetchSheetData(String sheetId, String range) throws IOException {
+    String stringResponse = "";
+        try {
+
+            String url = String.format(
+                   "https://sheets.googleapis.com/v4/spreadsheets/%s/values/%s",
+                   sheetId, range);
+            GenericUrl genericUrl = new GenericUrl(url);
+            HttpResponse response = requestFactory.buildGetRequest(genericUrl).execute();
+            stringResponse = response.parseAsString();
+        } catch (NullPointerException | IOException e) {
+            log.info("No google sheet data available: {}", e.getMessage());
+        }
+        return stringResponse;
+    }
+
+    HttpRequestFactory getHttpRequestFactory() {
+        HttpRequestFactory requestFactory = null;
+        try {
+            HttpTransport transport = new NetHttpTransport();
+            GoogleCredentials credentials = loadGoogleCredentials();
+            requestFactory = transport.createRequestFactory(new HttpCredentialsAdapter(credentials));
+        } catch (IllegalStateException | IOException e) {
+            log.info(e.getMessage());
+        }
+        return requestFactory;
+    }
+
+    GoogleCredentials loadGoogleCredentials() throws IOException {
         String json = System.getenv("GCP_CREDENTIALS_JSON");
         if (json == null || json.isEmpty()) {
             throw new IllegalStateException("Missing GCP_CREDENTIALS_JSON environment variable");

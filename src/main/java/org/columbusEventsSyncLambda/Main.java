@@ -1,13 +1,13 @@
 package org.columbusEventsSyncLambda;
 
-
-
-
 public class Main {
 
     public static void main(String[] args) throws Exception {
+        final String sheetId = System.getenv("COLUMBUS_GOOGLE_SHEET_ID");
+        final String range = "A2:D";
 
-        String sheet = GoogleSheetReader.fetchSheetData();
+        GoogleSheetReader googleSheetReader = new GoogleSheetReader();
+        String sheet = googleSheetReader.fetchSheetData(sheetId, range);
         System.out.println(sheet);
     }
 }
