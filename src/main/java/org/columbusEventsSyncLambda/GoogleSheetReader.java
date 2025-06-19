@@ -5,12 +5,9 @@ import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpTransport;
-
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.http.HttpCredentialsAdapter;
-
 import com.google.api.client.http.javanet.NetHttpTransport;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -24,7 +21,6 @@ public class GoogleSheetReader {
     public GoogleSheetReader() {
         this.requestFactory = getHttpRequestFactory();
     }
-
 
 //  Used for testing purposes
     public GoogleSheetReader(HttpRequestFactory requestFactory) {
