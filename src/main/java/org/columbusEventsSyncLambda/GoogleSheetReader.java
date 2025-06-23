@@ -27,32 +27,42 @@ public class GoogleSheetReader {
         this.requestFactory = requestFactory;
     }
 
-    public String fetchSheetData(String sheetId, String range) throws IOException {
-    String stringResponse = "";
+    public String fetchSheetData(String sheetId, String range) {
         try {
-
+            if (requestFactory == null) {
+                log.warn("HttpRequestFactory is not initialized.");
+                return "";
+            }
             String url = String.format(
                    "https://sheets.googleapis.com/v4/spreadsheets/%s/values/%s",
                    sheetId, range);
             GenericUrl genericUrl = new GenericUrl(url);
             HttpResponse response = requestFactory.buildGetRequest(genericUrl).execute();
-            stringResponse = response.parseAsString();
-        } catch (NullPointerException | IOException e) {
-            log.info("No google sheet data available: {}", e.getMessage());
+            return response.parseAsString();
+        } catch (IOException e) {
+            log.warn("No google sheet data available: {}", e.getMessage());
+            return "";
         }
-        return stringResponse;
     }
 
     HttpRequestFactory getHttpRequestFactory() {
-        HttpRequestFactory requestFactory = null;
         try {
+            HttpRequestFactory requestFactory = null;
             HttpTransport transport = new NetHttpTransport();
             GoogleCredentials credentials = loadGoogleCredentials();
-            requestFactory = transport.createRequestFactory(new HttpCredentialsAdapter(credentials));
-        } catch (IllegalStateException | IOException e) {
-            log.info(e.getMessage());
+            if (credentials != null) {
+                requestFactory = transport.createRequestFactory(new HttpCredentialsAdapter(credentials));
+            }
+            if (requestFactory == null) {
+                log.warn("HttpRequestFactory is null; cannot fetch sheet data.");
+                return null;
+            }
+            return requestFactory;
+
+        } catch (IOException | IllegalStateException e) {
+            log.warn("Cannot retrieve google credentials: {}", e.getMessage());
+            return null;
         }
-        return requestFactory;
     }
 
     GoogleCredentials loadGoogleCredentials() throws IOException {
@@ -60,9 +70,8 @@ public class GoogleSheetReader {
         if (json == null || json.isEmpty()) {
             throw new IllegalStateException("Missing GCP_CREDENTIALS_JSON environment variable");
         }
-
         return GoogleCredentials.fromStream(
-                new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8))
+            new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8))
         ).createScoped(Collections.singleton("https://www.googleapis.com/auth/spreadsheets.readonly"));
     }
 

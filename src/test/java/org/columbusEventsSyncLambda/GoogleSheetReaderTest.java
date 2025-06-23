@@ -16,7 +16,8 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class GoogleSheetReaderTest {
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
+//            (answer = Answers.RETURNS_DEEP_STUBS)
     HttpRequestFactory httpRequestFactory;
     @Mock
     HttpResponse httpResponse;
@@ -33,10 +34,21 @@ public class GoogleSheetReaderTest {
     }
 
     @Test
+    void fetchSheetDataHandlesNullRequestFactory() throws IOException {
+        //Unit test will not have credentials, which creates behavior needed for this test
+        GoogleSheetReader reader = new GoogleSheetReader();
+
+        String result = reader.fetchSheetData("123", "range");
+
+        assertEquals("", result);
+    }
+
+    @Test
     void fetchSheetDataHandlesIOException() throws IOException {
+        GoogleSheetReader reader = new GoogleSheetReader(httpRequestFactory);
+
         when(httpRequestFactory.buildGetRequest(any(GenericUrl.class))).thenThrow(new IOException("Fake IO error"));
 
-        GoogleSheetReader reader = new GoogleSheetReader(httpRequestFactory);
         String result = reader.fetchSheetData("invalid", "range");
 
         assertEquals("", result);
@@ -52,4 +64,5 @@ public class GoogleSheetReaderTest {
 
         assertEquals("", result);
     }
+
 }
