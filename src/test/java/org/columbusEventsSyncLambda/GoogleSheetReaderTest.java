@@ -3,66 +3,88 @@ package org.columbusEventsSyncLambda;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
+import org.columbusEventsSyncLambda.models.Event;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.IOException;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class GoogleSheetReaderTest {
     @Mock
-//            (answer = Answers.RETURNS_DEEP_STUBS)
+    (answer = Answers.RETURNS_DEEP_STUBS)
     HttpRequestFactory httpRequestFactory;
     @Mock
     HttpResponse httpResponse;
 
     @Test
-    public void fetchSheetDataReturnsAString() throws IOException {
+    public void fetchEventsReturnsAString() throws IOException {
         GoogleSheetReader googleSheetReader = new GoogleSheetReader(httpRequestFactory);
+
+        String json = "{\n" +
+                "  \"range\": \"ColumbusEvents!A2:D999\",\n" +
+                "  \"majorDimension\": \"ROWS\",\n" +
+                "  \"values\": [\n" +
+                "    [\n" +
+                "      \"Convention Center\",\n" +
+                "      \"The Arnold Classic\",\n" +
+                "      \"02-28-2025\",\n" +
+                "      \"All Day\"\n" +
+                "    ]\n" +
+                "  ]\n" +
+                "}";
+
         when(httpRequestFactory.buildGetRequest(any(GenericUrl.class)).execute()).thenReturn(httpResponse);
-        when(httpResponse.parseAsString()).thenReturn("{ \"values\": [[\"A\", \"B\"]] }");
+        when(httpResponse.parseAsString()).thenReturn(json);
 
-        String result = googleSheetReader.fetchSheetData("fakeId", "meaningless range");
+        Event result = googleSheetReader.fetchEvents("fakeId", "meaningless range").get(0);
 
-        assertEquals("{ \"values\": [[\"A\", \"B\"]] }", result);
+        assertInstanceOf(Event.class, result);
+        assertEquals("Convention Center", result.getLocationName());
+        assertEquals("The Arnold Classic", result.getEventName());
+        assertEquals("02-28-2025", result.getDate());
+        assertEquals("All Day", result.getTime());
+        assertTrue(result.isBadTraffic());
+        assertTrue(result.isDesiredEvent());
     }
 
     @Test
-    void fetchSheetDataHandlesNullRequestFactory() throws IOException {
+    void fetchEventsHandlesNullRequestFactory() throws IOException {
         //Unit test will not have credentials, which creates behavior needed for this test
         GoogleSheetReader reader = new GoogleSheetReader();
 
-        String result = reader.fetchSheetData("123", "range");
+        List<Event> result = reader.fetchEvents("id", "A2:D");
 
-        assertEquals("", result);
+        assertTrue(result.isEmpty());
     }
 
     @Test
-    void fetchSheetDataHandlesIOException() throws IOException {
+    void fetchEventsHandlesIOException() throws IOException {
         GoogleSheetReader reader = new GoogleSheetReader(httpRequestFactory);
 
         when(httpRequestFactory.buildGetRequest(any(GenericUrl.class))).thenThrow(new IOException("Fake IO error"));
 
-        String result = reader.fetchSheetData("invalid", "range");
+        List<Event> result = reader.fetchEvents("id", "A2:D");
 
-        assertEquals("", result);
+        assertTrue(result.isEmpty());
     }
 
     @Test
-    void fetchSheetDataHandlesParseFailure() throws IOException {
+    void fetchEventsHandlesParseFailure() throws IOException {
         when(httpRequestFactory.buildGetRequest(any(GenericUrl.class)).execute()).thenReturn(httpResponse);
         when(httpResponse.parseAsString()).thenThrow(new IOException("Parsing failed"));
 
         GoogleSheetReader reader = new GoogleSheetReader(httpRequestFactory);
-        String result = reader.fetchSheetData("id", "A2:D");
+        List<Event> result = reader.fetchEvents("id", "A2:D");
 
-        assertEquals("", result);
+        assertTrue(result.isEmpty());
     }
 
 }
