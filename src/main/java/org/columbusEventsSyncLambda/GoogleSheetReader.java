@@ -54,7 +54,7 @@ public class GoogleSheetReader {
         return events;
     }
 
-    HttpRequestFactory getHttpRequestFactory() {
+    private HttpRequestFactory getHttpRequestFactory() {
         try {
             HttpRequestFactory requestFactory = null;
             HttpTransport transport = new NetHttpTransport();
@@ -74,7 +74,7 @@ public class GoogleSheetReader {
         }
     }
 
-    GoogleCredentials loadGoogleCredentials() throws IOException {
+    private GoogleCredentials loadGoogleCredentials() throws IOException {
         String json = System.getenv("GCP_CREDENTIALS_JSON");
         if (json == null || json.isEmpty()) {
             throw new IllegalStateException("Missing GCP_CREDENTIALS_JSON environment variable");
@@ -84,7 +84,7 @@ public class GoogleSheetReader {
         ).createScoped(Collections.singleton("https://www.googleapis.com/auth/spreadsheets.readonly"));
     }
 
-    List<Event> convertStringToListOfEvents(String json) throws JsonProcessingException {
+   private List<Event> convertStringToListOfEvents(String json) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode root = mapper.readTree(json);
         JsonNode rows = root.path("values");
