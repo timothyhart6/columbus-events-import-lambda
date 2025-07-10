@@ -1,10 +1,11 @@
-package org.columbusEventsSyncLambda.models;
+package org.columbusEventsImportLambda.models;
 
-import lombok.Builder;
+
 import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@Builder
+@SuperBuilder
 public class Event {
 
     private String locationName;
