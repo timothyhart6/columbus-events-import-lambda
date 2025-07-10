@@ -1,4 +1,4 @@
-package org.columbusEventsSyncLambda;
+package org.columbusEventsImportLambda.aws;
 
 import lombok.Getter;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;

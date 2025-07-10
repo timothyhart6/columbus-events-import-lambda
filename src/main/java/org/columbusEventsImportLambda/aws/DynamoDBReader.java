@@ -1,6 +1,7 @@
-package org.columbusEventsSyncLambda;
+package org.columbusEventsImportLambda.aws;
 
-import org.columbusEventsSyncLambda.models.Event;
+import org.columbusEventsImportLambda.models.DynamoDBEvent;
+import org.columbusEventsImportLambda.models.Event;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
@@ -19,7 +20,7 @@ public class DynamoDBReader {
         this.tableName = tableName;
     }
 
-    public List<Event> getAllEvents(DynamoDbClient dynamoDbClient) {
+    public List<DynamoDBEvent> getAllEvents(DynamoDbClient dynamoDbClient) {
         ScanRequest scanRequest = ScanRequest.builder()
                 .tableName(tableName)
                 .build();
@@ -28,19 +29,22 @@ public class DynamoDBReader {
                 .map(item -> item.get("_airbyte_data"))
                 .filter(Objects::nonNull)
                 .map(AttributeValue::m)
-                .map(this::mapToEvent)
+                .map(this::mapToDynamoDbEvent)
                 .collect(Collectors.toList());
     }
 
-    private Event mapToEvent(Map<String, AttributeValue> data) {
-        return Event.builder()
-                .locationName(nullCheckString(data.get("locationName")))
-                .eventName(nullCheckString(data.get("eventName")))
-                .date(nullCheckString(data.get("date")))
-                .time(nullCheckString(data.get("time")))
-                .isBadTraffic(nullCheckBool(data.get("causesTraffic")))
-                .isDesiredEvent(nullCheckBool(data.get("interestingEvent")))
-                .build();
+    private DynamoDBEvent mapToDynamoDbEvent(Map<String, AttributeValue> item) {
+        Map<String, AttributeValue> data = item.get("_airbyte_data").m();
+
+        return  DynamoDBEvent.builder()
+                        .id(nullCheckString(data.get("id")))
+                        .eventName(nullCheckString(data.get("eventName")))
+                        .locationName(nullCheckString(data.get("locationName")))
+                        .date(nullCheckString(data.get("date")))
+                        .time(nullCheckString(data.get("time")))
+                        .isBadTraffic(nullCheckBool(data.get("isBadTraffic")))
+                        .isDesiredEvent(nullCheckBool(data.get("isDesiredEvent")))
+                        .build();
     }
 
     private static String nullCheckString(AttributeValue attribute) {

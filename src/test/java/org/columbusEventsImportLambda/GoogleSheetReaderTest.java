@@ -1,9 +1,11 @@
-package org.columbusEventsSyncLambda;
+package org.columbusEventsImportLambda;
 
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
-import org.columbusEventsSyncLambda.models.Event;
+import org.columbusEventsImportLambda.google.GoogleSheetReader;
+import org.columbusEventsImportLambda.models.Event;
+import org.columbusEventsImportLambda.models.GoogleEvent;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
@@ -60,7 +62,7 @@ public class GoogleSheetReaderTest {
         //Unit test will not have credentials, which creates behavior needed for this test
         GoogleSheetReader reader = new GoogleSheetReader();
 
-        List<Event> result = reader.fetchEvents("id", "A2:D");
+        List<GoogleEvent> result = reader.fetchEvents("id", "A2:D");
 
         assertTrue(result.isEmpty());
     }
@@ -71,7 +73,7 @@ public class GoogleSheetReaderTest {
 
         when(httpRequestFactory.buildGetRequest(any(GenericUrl.class))).thenThrow(new IOException("Fake IO error"));
 
-        List<Event> result = reader.fetchEvents("id", "A2:D");
+        List<GoogleEvent> result = reader.fetchEvents("id", "A2:D");
 
         assertTrue(result.isEmpty());
     }
@@ -82,7 +84,7 @@ public class GoogleSheetReaderTest {
         when(httpResponse.parseAsString()).thenThrow(new IOException("Parsing failed"));
 
         GoogleSheetReader reader = new GoogleSheetReader(httpRequestFactory);
-        List<Event> result = reader.fetchEvents("id", "A2:D");
+        List<GoogleEvent> result = reader.fetchEvents("id", "A2:D");
 
         assertTrue(result.isEmpty());
     }
