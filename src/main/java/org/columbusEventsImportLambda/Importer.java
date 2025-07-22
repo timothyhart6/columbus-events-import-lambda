@@ -2,14 +2,13 @@ package org.columbusEventsImportLambda;
 
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
-import org.columbusEventsImportLambda.google.GoogleSheetReader;
+import org.columbusEventsImportLambda.google.GoogleSheetService;
 import org.columbusEventsImportLambda.models.DynamoDBEvent;
 import org.columbusEventsImportLambda.models.Event;
 import org.columbusEventsImportLambda.models.GoogleEvent;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -19,12 +18,13 @@ public class Importer {
 
     private final DynamoDbClient dynamoDbClient;
     private static final String TABLE_NAME = "airbyte_sync_ColumbusEvents";
+    private static final String GOOGLE_SHEET_ID = "COLUMBUS_GOOGLE_SHEET_ID";
 
     public Importer(DynamoDbClient dynamoDbClient) {
         this.dynamoDbClient = dynamoDbClient;
 
     }
-    //TODO There are many little private classes. Read through and make sure it all makes sense and is easy to read. Keep the methods rational and small, but make sure you're not overcomplicating this.
+
     public void importGoogleRecordsToDynamoDB(List<GoogleEvent> googleEvents, List<DynamoDBEvent> dynamoDBEvents) {
         Map<String, DynamoDBEvent> dbEventMap = dynamoDBEvents.stream()
                 .collect(Collectors.toMap(DynamoDBEvent::getId, Function.identity()));
@@ -44,10 +44,10 @@ public class Importer {
             }
 
             // Always delete from Google Sheet regardless
-            GoogleSheetReader googleSheetReader = new GoogleSheetReader();
-            final String sheetId = System.getenv("COLUMBUS_GOOGLE_SHEET_ID");
+            GoogleSheetService googleSheetService = new GoogleSheetService();
+            final String sheetId = System.getenv(GOOGLE_SHEET_ID);
 
-            googleSheetReader.deleteGoogleEvent(sheetId, googleEvent.getRowNumber());
+            googleSheetService.deleteGoogleEvent(sheetId, googleEvent.getRowNumber());
         }
 
         batchUpsertToDynamoDB(eventsToUpsert);

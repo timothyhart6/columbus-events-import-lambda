@@ -1,7 +1,6 @@
 package org.columbusEventsImportLambda.aws;
 
 import org.columbusEventsImportLambda.models.DynamoDBEvent;
-import org.columbusEventsImportLambda.models.Event;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
@@ -20,7 +19,7 @@ public class DynamoDBReader {
         this.tableName = tableName;
     }
 
-    public List<DynamoDBEvent> getAllEvents(DynamoDbClient dynamoDbClient) {
+    public List<DynamoDBEvent> fetchEvents(DynamoDbClient dynamoDbClient) {
         ScanRequest scanRequest = ScanRequest.builder()
                 .tableName(tableName)
                 .build();

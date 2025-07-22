@@ -1,16 +1,14 @@
 package org.columbusEventsImportLambda.google;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.http.*;
 import com.google.api.client.http.json.JsonHttpContent;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import lombok.extern.slf4j.Slf4j;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.api.client.http.javanet.NetHttpTransport;
-import org.columbusEventsImportLambda.models.Event;
 import org.columbusEventsImportLambda.models.GoogleEvent;
 
 import java.io.ByteArrayInputStream;
@@ -22,18 +20,16 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-public class GoogleSheetReader {
+public class GoogleSheetService {
 
     HttpRequestFactory requestFactory;
-    private static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
-
-    public GoogleSheetReader() {
+    public GoogleSheetService() {
         this.requestFactory = getHttpRequestFactory();
     }
 
 //  Used for testing purposes
-    public GoogleSheetReader(HttpRequestFactory requestFactory) {
+    public GoogleSheetService(HttpRequestFactory requestFactory) {
         this.requestFactory = requestFactory;
     }
 
@@ -48,11 +44,11 @@ public class GoogleSheetReader {
                    "https://sheets.googleapis.com/v4/spreadsheets/%s/values/%s",
                    sheetId, range);
             GenericUrl genericUrl = new GenericUrl(url);
-            HttpResponse response = requestFactory.buildGetRequest(genericUrl).execute();
-            String json = response.parseAsString();
-            events = convertStringToListOfEvents(json);
+                HttpResponse response = requestFactory.buildGetRequest(genericUrl).execute();
+                String json = response.parseAsString();
+                events = convertStringToListOfEvents(json);
         } catch (IOException e) {
-            log.warn("No google sheet data available: {}", e.getMessage());
+            log.warn("Error reading from Google Sheet: {}", e.getMessage());
         }
         return events;
     }
@@ -119,20 +115,30 @@ public class GoogleSheetReader {
         return row.has(index) && row.get(index).asText().equalsIgnoreCase("true");
     }
 
-    //TODO understand what this is doing. There may be a cleaner/easier way to write this. Possible delete the batch instead of individual events. Probably better to make new class and call that in main.
-    //TODO Either move this to a new class, or rename the class
     public void deleteGoogleEvent(String spreadsheetId, int rowIndex) {
         String url = String.format(
                 "https://sheets.googleapis.com/v4/spreadsheets/%s:batchUpdate",
                 spreadsheetId
         );
 
+        HttpContent content = getHttpContent(rowIndex);
+
+        try {
+            HttpRequest request = requestFactory.buildPostRequest(new GenericUrl(url), content);
+            request.execute();
+            log.info("Successfully deleted row at index {} from Google Sheet.", rowIndex);
+        } catch (IOException e) {
+            log.warn("Failed to delete row {} from Google Sheet: {}", rowIndex, e.getMessage());
+        }
+    }
+
+    private static HttpContent getHttpContent(int rowIndex) {
         Map<String, Object> deleteRequest = Map.of(
             "requests", List.of(
                 Map.of(
                 "deleteDimension", Map.of(
                     "range", Map.of(
-                        "sheetId", 0, // Default to first sheet; change if needed
+                        "sheetId", 0, // Defaults to first sheet
                         "dimension", "ROWS",
                         "startIndex", rowIndex,
                         "endIndex", rowIndex + 1
@@ -142,15 +148,7 @@ public class GoogleSheetReader {
             )
         );
 
-        HttpContent content = new JsonHttpContent(JacksonFactory.getDefaultInstance(), deleteRequest);
-
-        try {
-            HttpRequest request = requestFactory.buildPostRequest(new GenericUrl(url), content);
-            request.execute();
-            log.info("Successfully deleted row at index {} from Google Sheet.", rowIndex);
-        } catch (IOException e) {
-            log.warn("Failed to delete row {} from Google Sheet: {}", rowIndex, e.getMessage());
-        }
+        return new JsonHttpContent(GsonFactory.getDefaultInstance(), deleteRequest);
     }
 
 }

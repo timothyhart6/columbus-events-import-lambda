@@ -3,7 +3,7 @@ package org.columbusEventsImportLambda;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
-import org.columbusEventsImportLambda.google.GoogleSheetReader;
+import org.columbusEventsImportLambda.google.GoogleSheetService;
 import org.columbusEventsImportLambda.models.Event;
 import org.columbusEventsImportLambda.models.GoogleEvent;
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class GoogleSheetReaderTest {
+public class GoogleSheetServiceTest {
     @Mock
     (answer = Answers.RETURNS_DEEP_STUBS)
     HttpRequestFactory httpRequestFactory;
@@ -28,7 +28,7 @@ public class GoogleSheetReaderTest {
 
     @Test
     public void fetchEventsReturnsAString() throws IOException {
-        GoogleSheetReader googleSheetReader = new GoogleSheetReader(httpRequestFactory);
+        GoogleSheetService googleSheetService = new GoogleSheetService(httpRequestFactory);
 
         String json = "{\n" +
                 "  \"range\": \"ColumbusEvents!A2:D999\",\n" +
@@ -46,7 +46,7 @@ public class GoogleSheetReaderTest {
         when(httpRequestFactory.buildGetRequest(any(GenericUrl.class)).execute()).thenReturn(httpResponse);
         when(httpResponse.parseAsString()).thenReturn(json);
 
-        Event result = googleSheetReader.fetchEvents("fakeId", "meaningless range").get(0);
+        Event result = googleSheetService.fetchEvents("fakeId", "meaningless range").get(0);
 
         assertInstanceOf(Event.class, result);
         assertEquals("Convention Center", result.getLocationName());
@@ -60,7 +60,7 @@ public class GoogleSheetReaderTest {
     @Test
     void fetchEventsHandlesNullRequestFactory() throws IOException {
         //Unit test will not have credentials, which creates behavior needed for this test
-        GoogleSheetReader reader = new GoogleSheetReader();
+        GoogleSheetService reader = new GoogleSheetService();
 
         List<GoogleEvent> result = reader.fetchEvents("id", "A2:D");
 
@@ -69,7 +69,7 @@ public class GoogleSheetReaderTest {
 
     @Test
     void fetchEventsHandlesIOException() throws IOException {
-        GoogleSheetReader reader = new GoogleSheetReader(httpRequestFactory);
+        GoogleSheetService reader = new GoogleSheetService(httpRequestFactory);
 
         when(httpRequestFactory.buildGetRequest(any(GenericUrl.class))).thenThrow(new IOException("Fake IO error"));
 
@@ -83,7 +83,7 @@ public class GoogleSheetReaderTest {
         when(httpRequestFactory.buildGetRequest(any(GenericUrl.class)).execute()).thenReturn(httpResponse);
         when(httpResponse.parseAsString()).thenThrow(new IOException("Parsing failed"));
 
-        GoogleSheetReader reader = new GoogleSheetReader(httpRequestFactory);
+        GoogleSheetService reader = new GoogleSheetService(httpRequestFactory);
         List<GoogleEvent> result = reader.fetchEvents("id", "A2:D");
 
         assertTrue(result.isEmpty());
