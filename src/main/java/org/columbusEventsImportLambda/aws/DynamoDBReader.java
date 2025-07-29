@@ -33,16 +33,15 @@ public class DynamoDBReader {
     }
 
     private DynamoDBEvent mapToDynamoDbEvent(Map<String, AttributeValue> item) {
-        Map<String, AttributeValue> data = item.get("_airbyte_data").m();
 
         return  DynamoDBEvent.builder()
-                        .id(nullCheckString(data.get("id")))
-                        .eventName(nullCheckString(data.get("eventName")))
-                        .locationName(nullCheckString(data.get("locationName")))
-                        .date(nullCheckString(data.get("date")))
-                        .time(nullCheckString(data.get("time")))
-                        .isBadTraffic(nullCheckBool(data.get("isBadTraffic")))
-                        .isDesiredEvent(nullCheckBool(data.get("isDesiredEvent")))
+                        .id(nullCheckString(item.get("id")))
+                        .eventName(nullCheckString(item.get("eventName")))
+                        .locationName(nullCheckString(item.get("locationName")))
+                        .date(nullCheckString(item.get("date")))
+                        .time(nullCheckString(item.get("time")))
+                        .isBadTraffic(nullCheckBool(item.get("isBadTraffic")))
+                        .isDesiredEvent(nullCheckBool(item.get("isDesiredEvent")))
                         .build();
     }
 
