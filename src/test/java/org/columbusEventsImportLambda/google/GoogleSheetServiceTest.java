@@ -1,9 +1,8 @@
-package org.columbusEventsImportLambda;
+package org.columbusEventsImportLambda.google;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.http.*;
-import org.columbusEventsImportLambda.google.GoogleSheetService;
 import org.columbusEventsImportLambda.models.Event;
 import org.columbusEventsImportLambda.models.GoogleEvent;
 import org.junit.jupiter.api.Test;
