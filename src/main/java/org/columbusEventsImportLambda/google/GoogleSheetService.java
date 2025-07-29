@@ -94,8 +94,8 @@ public class GoogleSheetService {
                 JsonNode row = values.get(i);
                 GoogleEvent event = GoogleEvent.builder()
                         .rowNumber(i + 1 + 1) // +1 for 0-based index, +1 for header row (assumes A2:D starts at row 2)
-                        .eventName(getSafeString(row, 0))
-                        .locationName(getSafeString(row, 1))
+                        .locationName(getSafeString(row, 0))
+                        .eventName(getSafeString(row, 1))
                         .date(getSafeString(row, 2))
                         .time(getSafeString(row, 3))
                         .isBadTraffic(parseBoolean(row, 4))

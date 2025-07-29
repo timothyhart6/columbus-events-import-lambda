@@ -14,6 +14,4 @@ public class Event {
     private String time;
     private boolean isBadTraffic;
     private boolean isDesiredEvent;
-
-
 }
