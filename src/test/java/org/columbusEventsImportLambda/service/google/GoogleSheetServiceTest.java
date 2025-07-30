@@ -1,4 +1,4 @@
-package org.columbusEventsImportLambda.google;
+package org.columbusEventsImportLambda.service.google;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,4 +1,4 @@
-package org.columbusEventsImportLambda.aws;
+package org.columbusEventsImportLambda.service.aws;
 
 import org.columbusEventsImportLambda.models.DynamoDBEvent;
 import org.junit.jupiter.api.BeforeEach;
