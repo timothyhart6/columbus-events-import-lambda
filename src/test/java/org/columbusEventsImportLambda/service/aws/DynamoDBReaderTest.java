@@ -35,15 +35,12 @@ public class DynamoDBReaderTest {
     @Test
     public void successfullyFetchEvents() {
 
-        Map<String, AttributeValue> fakeData = Map.of(
-                "_airbyte_data", AttributeValue.fromM(Map.of(
-                        "eventName", AttributeValue.fromS("Test Event"),
-                        "locationName", AttributeValue.fromS("Convention Center")
-                ))
+        Map<String, AttributeValue> item1 = Map.of(
+                "eventName", AttributeValue.fromS("Test Event")
         );
 
         ScanResponse fakeResponse = ScanResponse.builder()
-                .items(List.of(fakeData))
+                .items(List.of(item1))
                 .build();
 
         when(dynamoDbClient.scan(any(ScanRequest.class))).thenReturn(fakeResponse);
@@ -57,13 +54,13 @@ public class DynamoDBReaderTest {
 
     @Test
     public void multipleEventsReturned() {
-        Map<String, AttributeValue> item1 = Map.of("_airbyte_data", AttributeValue.fromM(
-                Map.of("eventName", AttributeValue.fromS("Event 1"))
-        ));
+        Map<String, AttributeValue> item1 = Map.of(
+                "eventName", AttributeValue.fromS("Event 1")
+        );
 
-        Map<String, AttributeValue> item2 = Map.of("_airbyte_data", AttributeValue.fromM(
-                Map.of("eventName", AttributeValue.fromS("Event 2"))
-        ));
+        Map<String, AttributeValue> item2 = Map.of(
+                "eventName", AttributeValue.fromS("Event 2")
+        );
 
         ScanResponse fakeResponse = ScanResponse.builder().items(List.of(item1, item2)).build();
         when(dynamoDbClient.scan(any(ScanRequest.class))).thenReturn(fakeResponse);
@@ -74,7 +71,6 @@ public class DynamoDBReaderTest {
         assertEquals("Event 1", events.get(0).getEventName());
         assertEquals("Event 2", events.get(1).getEventName());
     }
-
 
     @Test
     public void fetchEventsReturnsEmptyList() {
@@ -89,9 +85,8 @@ public class DynamoDBReaderTest {
     @Test
     public void missingBooleanFieldsDefaultsToTrue() {
         Map<String, AttributeValue> partialData = Map.of(
-                "_airbyte_data", AttributeValue.fromM(Map.of(
-                        "eventName", AttributeValue.fromS("Boolean Default Test")
-                ))
+                "eventName", AttributeValue.fromS("Boolean Default Test")
+                // isBadTraffic and isDesiredEvent are missing
         );
 
         ScanResponse fakeResponse = ScanResponse.builder().items(List.of(partialData)).build();
@@ -99,6 +94,7 @@ public class DynamoDBReaderTest {
 
         List<DynamoDBEvent> events = reader.fetchEvents(dynamoDbClient);
 
+        assertEquals(1, events.size());
         assertTrue(events.get(0).isBadTraffic());
         assertTrue(events.get(0).isDesiredEvent());
     }

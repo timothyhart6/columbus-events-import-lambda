@@ -15,6 +15,8 @@ import software.amazon.awssdk.services.dynamodb.model.WriteRequest;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,7 +34,7 @@ public class ImportServiceTest {
     private ImportService importService;
     @BeforeEach
     void setup() {
-        importService = new ImportService(dynamoDbClient, googleSheetService, "fake-sheet-id");
+        importService = new ImportService(dynamoDbClient, googleSheetService, "fake-sheet-id", "ColumbusEvents");
 
     }
 
@@ -47,12 +49,21 @@ public class ImportServiceTest {
 
     @Test
     public void manyRecordsUpsertedToDatabase() {
-        List<GoogleEvent> googleEvents = Collections.nCopies(30, googleEvent);
+        List<GoogleEvent> googleEvents = IntStream.range(0, 30)
+                .mapToObj(i -> GoogleEvent.builder()
+                        .eventName("Event " + i)
+                        .locationName("Location " + i)
+                        .date("2025-08-" + String.format("%02d", i + 1))
+                        .isDesiredEvent(false)
+                        .isBadTraffic(false)
+                        .build()).collect(Collectors.toUnmodifiableList());
 
         importService.importGoogleRecordsToDynamoDB(googleEvents, Collections.emptyList());
 
         verify(dynamoDbClient, times(2)).batchWriteItem(any(BatchWriteItemRequest.class));
     }
+
+
 
     @Test
     public void noRecordsUpsertedToDatabase() {

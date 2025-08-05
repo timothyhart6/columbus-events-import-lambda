@@ -4,10 +4,10 @@ import org.columbusEventsImportLambda.models.DynamoDBEvent;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
+import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import java.util.stream.Collectors;
 
@@ -24,10 +24,10 @@ public class DynamoDBReader {
                 .tableName(tableName)
                 .build();
 
-        return dynamoDbClient.scan(scanRequest).items().stream()
-                .map(item -> item.get("_airbyte_data"))
-                .filter(Objects::nonNull)
-                .map(AttributeValue::m)
+        ScanResponse response = dynamoDbClient.scan(scanRequest);
+
+        return response.items().stream()
+                .filter(item -> item != null && item.containsKey("eventName"))
                 .map(this::mapToDynamoDbEvent)
                 .collect(Collectors.toList());
     }

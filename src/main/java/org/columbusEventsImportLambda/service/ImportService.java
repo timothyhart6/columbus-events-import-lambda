@@ -16,16 +16,17 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ImportService {
 
-    private static final String TABLE_NAME = "airbyte_sync_ColumbusEvents";
+    private final String dynamoDBTableName;
     public static final String GOOGLE_SHEET_ID = "COLUMBUS_GOOGLE_SHEET_ID";
     private final DynamoDbClient dynamoDbClient;
     private final GoogleSheetService googleSheetService;
     private final String sheetId;
 
-    public ImportService(DynamoDbClient dynamoDbClient, GoogleSheetService googleSheetService, String sheetId) {
+    public ImportService(DynamoDbClient dynamoDbClient, GoogleSheetService googleSheetService, String sheetId, String dynamoDBTableName) {
         this.dynamoDbClient = dynamoDbClient;
         this.googleSheetService = googleSheetService;
         this.sheetId = sheetId;
+        this.dynamoDBTableName = dynamoDBTableName;
 
     }
 
@@ -52,6 +53,7 @@ public class ImportService {
         }
 
         batchUpsertToDynamoDB(eventsToUpsertList);
+        log.info("{} DynamoDB events upserted into the database", eventsToUpsertList.size());
     }
 
     String generateCompositeKey(Event event) {
@@ -78,13 +80,20 @@ public class ImportService {
 
     private void batchUpsertToDynamoDB(List<DynamoDBEvent> events) {
         List<WriteRequest> writeRequests = events.stream()
-                .map(this::buildPutRequest)
-                .collect(Collectors.toList());
+                .collect(Collectors.toMap(
+                        DynamoDBEvent::getId,
+                        this::buildPutRequest,
+                        (a, b) -> a
+                ))
+                .values().stream().toList();
 
-        List<List<WriteRequest>> batches = Lists.partition(writeRequests, 25);
+
+        List<WriteRequest> writeRequestList = writeRequests.stream().toList(); // Java 16+
+        List<List<WriteRequest>> batches = Lists.partition(writeRequestList, 25);
+
 
         for (List<WriteRequest> batch : batches) {
-            Map<String, List<WriteRequest>> requestMap = Map.of(TABLE_NAME, batch);
+            Map<String, List<WriteRequest>> requestMap = Map.of(dynamoDBTableName, batch);
             BatchWriteItemRequest batchRequest = BatchWriteItemRequest.builder()
                     .requestItems(requestMap)
                     .build();

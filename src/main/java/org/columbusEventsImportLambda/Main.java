@@ -16,14 +16,16 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         final String sheetId = System.getenv("COLUMBUS_GOOGLE_SHEET_ID");
+        final String dynamoDBTableName = "ColumbusEvents";
         final String range = "A2:D";
 
         GoogleSheetService googleSheetService = new GoogleSheetService();
-        DynamoDBReader dynamoDBReader = new DynamoDBReader("airbyte_sync_ColumbusEvents");
+        DynamoDBReader dynamoDBReader = new DynamoDBReader(dynamoDBTableName);
         ImportService importService = new ImportService(
                 DynamoDbClient.create(),
                 new GoogleSheetService(),
-                System.getenv(GOOGLE_SHEET_ID)
+                System.getenv(GOOGLE_SHEET_ID),
+                dynamoDBTableName
         );
 
         List<GoogleEvent> googleEvents = googleSheetService.fetchEvents(sheetId, range);
