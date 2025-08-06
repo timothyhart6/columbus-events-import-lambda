@@ -1,0 +1,1 @@
+The app syncs the data from a google spread sheet to an AWS DynamoDB table. This is a daily process that runs before ColumbusEventService. When there is a new record in the google sheet that the DynamoDB table does not have, it convert the google record and adds it to the DynamoDB table. Afterward the update is complete, the record is deleted from the google sheet.
