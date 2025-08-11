@@ -88,12 +88,12 @@ public class ImportServiceTest {
                 .time("7 PM")
                 .isBadTraffic(true)
                 .isDesiredEvent(false)
-                .rowNumber(2) // if logic decrements it, this will match actual = 1
+                .rowNumber(1)
                 .build();
 
         importService.importGoogleRecordsToDynamoDB(List.of(googleEvent), Collections.emptyList());
 
-        verify(googleSheetService, times(1)).deleteGoogleEvent("fake-sheet-id", 2);
+        verify(googleSheetService, times(1)).deleteGoogleEvent("fake-sheet-id", 1);
         verify(dynamoDbClient, times(1)).batchWriteItem(any(BatchWriteItemRequest.class));
     }
 
@@ -121,7 +121,7 @@ public class ImportServiceTest {
 
         importService.importGoogleRecordsToDynamoDB(List.of(googleEvent), List.of(dbEvent));
 
-        verify(googleSheetService, times(1)).deleteGoogleEvent("fake-sheet-id", 3);
+        verify(googleSheetService, times(1)).deleteGoogleEvent("fake-sheet-id", 1);
         verify(dynamoDbClient, times(1)).batchWriteItem(any(BatchWriteItemRequest.class));
     }
 
@@ -149,7 +149,7 @@ public class ImportServiceTest {
 
         importService.importGoogleRecordsToDynamoDB(List.of(googleEvent), List.of(dbEvent));
 
-        verify(googleSheetService, times(1)).deleteGoogleEvent("fake-sheet-id", 4);
+        verify(googleSheetService, times(1)).deleteGoogleEvent("fake-sheet-id", 1);
         verify(dynamoDbClient, times(0)).batchWriteItem(any(BatchWriteItemRequest.class));
     }
 

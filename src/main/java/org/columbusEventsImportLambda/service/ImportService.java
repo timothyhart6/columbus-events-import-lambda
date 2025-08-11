@@ -48,8 +48,8 @@ public class ImportService {
                 eventsToUpsertList.add(buildDynamoDBEvent(googleEvent, compositeKey));
             }
 
-            // Always delete from Google Sheet regardless
-            googleSheetService.deleteGoogleEvent(sheetId, googleEvent.getRowNumber());
+            // googleEvent will be the top row after the headers (row 2). Always delete that record afterwards
+            googleSheetService.deleteGoogleEvent(sheetId, 1);
         }
 
         batchUpsertToDynamoDB(eventsToUpsertList);

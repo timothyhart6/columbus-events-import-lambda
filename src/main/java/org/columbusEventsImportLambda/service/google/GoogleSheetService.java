@@ -124,9 +124,9 @@ public class GoogleSheetService {
         try {
             HttpRequest request = requestFactory.buildPostRequest(new GenericUrl(url), content);
             request.execute();
-            log.info("Successfully deleted row at index {} from Google Sheet.", rowIndex);
+            log.info("Successfully deleted google row");
         } catch (IOException e) {
-            log.warn("Failed to delete row {} from Google Sheet: {}", rowIndex, e.getMessage());
+            log.warn("Failed to delete row from Google Sheet: {}", e.getMessage());
         }
     }
 
