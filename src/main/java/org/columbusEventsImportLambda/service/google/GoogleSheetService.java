@@ -78,7 +78,7 @@ public class GoogleSheetService {
             throw new IllegalStateException("Missing GCP_CREDENTIALS_JSON environment variable");
         }
         return GoogleCredentials.fromStream(new FileInputStream(path))
-                .createScoped(Collections.singleton("https://www.googleapis.com/auth/spreadsheets.readonly"));
+                .createScoped(Collections.singleton("https://www.googleapis.com/auth/spreadsheets"));
     }
 
     private List<GoogleEvent> convertStringToListOfEvents(String json) throws IOException {
