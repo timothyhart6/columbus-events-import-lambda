@@ -11,8 +11,11 @@ import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import org.columbusEventsImportLambda.models.GoogleEvent;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -72,14 +75,21 @@ public class GoogleSheetService {
         }
     }
 
-    private GoogleCredentials loadGoogleCredentials() throws IOException {
-        String path = System.getenv("GCP_CREDENTIALS_JSON");
-        if (path == null || path.isEmpty()) {
-            throw new IllegalStateException("Missing GCP_CREDENTIALS_JSON environment variable");
+    GoogleCredentials loadGoogleCredentials() throws IOException {
+        String val = System.getenv("GCP_CREDENTIALS_JSON");
+        if (val == null || val.isEmpty()) {
+            throw new IllegalStateException("Missing GCP_CREDENTIALS_JSON");
         }
-        return GoogleCredentials.fromStream(new FileInputStream(path))
+        InputStream inputStream;
+        if (val.trim().startsWith("{")) {
+            inputStream = new ByteArrayInputStream(val.getBytes(StandardCharsets.UTF_8));
+        } else {
+            inputStream = new FileInputStream(val);
+        }
+        return GoogleCredentials.fromStream(inputStream)
                 .createScoped(Collections.singleton("https://www.googleapis.com/auth/spreadsheets"));
     }
+
 
     private List<GoogleEvent> convertStringToListOfEvents(String json) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
