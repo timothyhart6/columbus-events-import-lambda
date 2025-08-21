@@ -17,7 +17,7 @@ public class ImportJobRunner {
     public void run() {
         final String sheetId = System.getenv("COLUMBUS_GOOGLE_SHEET_ID");
         final String dynamoDBTableName = "ColumbusEvents";
-        final String range = "A2:D";
+        final String range = "A2:F";
 
         GoogleSheetService googleSheetService = new GoogleSheetService();
         DynamoDBReader dynamoDBReader = new DynamoDBReader(dynamoDBTableName);
