@@ -5,15 +5,15 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 
 import java.util.Map;
 
-public class ImportServiceHandler implements RequestHandler<Map<String, Object>, Void> {
+public class ImportServiceHandler implements RequestHandler<Void, Void> {
 
     @Override
-    public Void handleRequest(Map<String, Object> input, Context context) {
+    public Void handleRequest(Void input, Context context) {
         try {
             new ImportJobRunner().run();
         } catch (Exception e) {
             throw new RuntimeException("Import job failed", e);
         }
-        return null; // no output
+        return null;
     }
 }
