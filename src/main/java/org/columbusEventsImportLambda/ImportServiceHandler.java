@@ -3,8 +3,6 @@ package org.columbusEventsImportLambda;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 
-import java.util.Map;
-
 public class ImportServiceHandler implements RequestHandler<Void, Void> {
 
     @Override
