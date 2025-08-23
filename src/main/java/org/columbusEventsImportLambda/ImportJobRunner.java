@@ -33,4 +33,5 @@ public class ImportJobRunner {
 
         importService.importGoogleRecordsToDynamoDB(googleEvents, dynamoDBEvents);
     }
+
 }
