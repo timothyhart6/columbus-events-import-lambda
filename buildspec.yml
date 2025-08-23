@@ -5,22 +5,16 @@ phases:
     runtime-versions:
       java: corretto17
     commands:
-      - echo Using Java 17...
-      - java -version
       - mvn --version
 
   build:
     commands:
-      - echo Build started on `date`
-      - mvn clean package -DskipTests
-      - echo Build completed on `date`
-
+      - mvn clean package
   post_build:
     commands:
       - echo Packaging Lambda artifact...
-      - mkdir -p output
-      - cp target/events-sync-lambda.jar output/
+      - cp target/events-sync-lambda.jar
 
 artifacts:
   files:
-    - output/events-sync-lambda.jar
+    - target/*.jar
