@@ -115,6 +115,7 @@
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <finalName>events-sync-lambda</finalName>
                         </configuration>
                     </execution>
                 </executions>
