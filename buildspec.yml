@@ -24,4 +24,5 @@ phases:
       - cp target/events-sync-lambda.jar output/
 artifacts:
   files:
-    - output/events-sync-lambda.jar
+    - '**/*.jar'
+  discard-paths: no
