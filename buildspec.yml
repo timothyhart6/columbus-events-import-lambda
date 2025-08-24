@@ -21,7 +21,7 @@ phases:
       - mkdir -p output
       # Copy the shaded JAR — update if your <finalName> is different
       - cp target/events-sync-lambda.jar output/
-      - echo Listing output directory for verification:
+#      - echo Listing output directory for verification:
       - ls -lh output/
 
 artifacts:
