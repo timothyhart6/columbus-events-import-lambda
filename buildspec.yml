@@ -5,25 +5,26 @@ phases:
     runtime-versions:
       java: corretto17
     commands:
-      - echo "Using Java 17..."
+      - echo Using Java 17...
       - java -version
       - mvn --version
 
   build:
     commands:
-      - echo "Build started on `date`"
+      - echo Build started on `date`
       - mvn clean package -DskipTests
-      - echo "Build completed on `date`"
+      - echo Build completed on `date`
 
-post_build:
-  commands:
-    - echo "Packaging Lambda artifact..."
-    - mkdir -p output
-    - cp target/*-all.jar output/events-sync-lambda.jar
-    - echo Build finished, listing output directory...
-    - ls -lh output/
+  post_build:
+    commands:
+      - echo Packaging Lambda artifact...
+      - mkdir -p output
+      # Copy the shaded JAR — update if your <finalName> is different
+      - cp target/events-sync-lambda.jar output/
+      - echo Listing output directory for verification:
+      - ls -lh output/
 
 artifacts:
   files:
-    - output/**
+    - output/events-sync-lambda.jar   # explicitly match the JAR
   discard-paths: yes
