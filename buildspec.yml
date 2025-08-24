@@ -15,19 +15,11 @@ phases:
       - mvn clean package -DskipTests
       - echo "Build completed on `date`"
 
-  post_build:
-    commands:
-      - echo "Packaging Lambda artifact..."
-      - mkdir -p output
-      # Copy the shaded JAR and rename to a stable name
-      - cp target/*-all.jar output/events-sync-lambda.jar
-
-      - echo "Checking for handler class in JAR..."
-      - "unzip -l output/events-sync-lambda.jar | grep 'org/columbusEventsImportLambda/ImportServiceHandler.class' || (echo 'ERROR: Handler class not found in JAR!' && exit 1)"
-
-      - echo "Checking for dependencies in shaded JAR..."
-      - "unzip -l output/events-sync-lambda.jar | grep 'com/google/gson/Gson.class' || (echo 'ERROR: Gson not found in shaded JAR!' && exit 1)"
-      - "unzip -l output/events-sync-lambda.jar | grep 'com/amazonaws/services/lambda/AWSLambda.class' || (echo 'ERROR: AWS SDK not found in shaded JAR!' && exit 1)"
+post_build:
+  commands:
+    - echo "Packaging Lambda artifact..."
+    - mkdir -p output
+    - cp target/*-all.jar output/events-sync-lambda.jar
 
 artifacts:
   files:

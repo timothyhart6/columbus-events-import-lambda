@@ -114,14 +114,29 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <!-- ✅ Always produce -all.jar -->
+                            <finalName>${project.artifactId}-${project.version}-all</finalName>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <shadedArtifactAttached>true</shadedArtifactAttached>
-                            <shadedClassifierName>all</shadedClassifierName>
-<!--                            <finalName>events-sync-lambda</finalName>-->
+                            <filters>
+                                <filter>
+                                    <!-- Don’t bundle Lambda core classes, AWS provides them -->
+                                    <artifact>com.amazonaws:aws-lambda-java-core</artifact>
+                                    <excludes>
+                                        <exclude>**</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>com.amazonaws:aws-lambda-java-events</artifact>
+                                    <excludes>
+                                        <exclude>**</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+
 
         </plugins>
     </build>
