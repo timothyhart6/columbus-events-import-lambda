@@ -6,23 +6,22 @@ phases:
       java: corretto17
     commands:
       - echo Using Java 17...
-#      - java -version
+      - java -version
       - mvn --version
 
   build:
     commands:
-#      - echo Build started on `date`
-      - mvn clean install
-#      - echo Build completed on `date`
+      - echo Build started on `date`
+      - mvn clean package -DskipTests
+      - echo Build completed on `date`
 
   post_build:
     commands:
       - echo Packaging Lambda artifact...
       - mkdir -p output
-      # Copy your built JAR into output/ so CodePipeline can deploy it
-#      - cp target/*.jar output/
-      - cp target/events-sync-lambda.jar output/
+      # Copy the shaded JAR and rename it to a stable name
+      - cp target/*-all.jar output/events-sync-lambda.jar
+
 artifacts:
   files:
-    - '**/*.jar'
-  discard-paths: no
+    - output/events-sync-lambda.jar
