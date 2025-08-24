@@ -19,8 +19,11 @@ phases:
     commands:
       - echo Packaging Lambda artifact...
       - mkdir -p output
-      # Copy the shaded JAR and rename it to a stable name
+      # Copy the shaded JAR and rename to a stable name
       - cp target/*-all.jar output/events-sync-lambda.jar
+
+      - echo "Checking for handler class in JAR..."
+      - unzip -l output/events-sync-lambda.jar | grep "org/columbusEventsImportLambda/ImportServiceHandler.class" || (echo "ERROR: Handler class not found in JAR!" && exit 1)
 
 artifacts:
   files:
