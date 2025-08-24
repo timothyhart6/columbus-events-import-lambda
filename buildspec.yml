@@ -20,7 +20,10 @@ post_build:
     - echo "Packaging Lambda artifact..."
     - mkdir -p output
     - cp target/*-all.jar output/events-sync-lambda.jar
+    - echo Build finished, listing output directory...
+    - ls -lh output/
 
 artifacts:
   files:
-    - output/events-sync-lambda.jar
+    - output/**
+  discard-paths: yes
