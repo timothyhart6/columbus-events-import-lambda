@@ -22,5 +22,5 @@ phases:
 
 artifacts:
   files:
-    - target/events-sync-lambda.jar
+    - target/events-sync-lambda-1.0-SNAPSHOT.jar
   discard-paths: yes
