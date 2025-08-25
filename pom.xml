@@ -115,7 +115,7 @@
                         </goals>
                         <configuration>
                             <!-- ✅ Always produce -all.jar -->
-                            <finalName>${project.artifactId}-${project.version}-all</finalName>
+                            <finalName>events-sync-lambda</finalName>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <filters>
                                 <filter>
