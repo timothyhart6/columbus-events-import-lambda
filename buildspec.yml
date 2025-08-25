@@ -9,25 +9,27 @@ phases:
       - java -version
       - mvn --version
 
+
   build:
     commands:
-      - echo "Build started on `date`"
+#      - echo "Build started on `date`"
       - mvn clean package -DskipTests
-      - echo "Build completed on `date`"
+#      - echo "Build completed on `date`"
       - cp target/events-sync-lambda.jar .
       - zip events-sync-lambda.zip events-sync-lambda.jar
 
   post_build:
     commands:
       - echo "Verifying JAR contents..."
-      - "jar tf target/events-sync-lambda.jar | grep -E '^org/columbusEventsImportLambda/ImportServiceHandler\\.class$' || (echo 'ERROR: Handler class not found in JAR!' && exit 1)"
+      - jar tf target/events-sync-lambda.jar | grep -E '^org/columbusEventsImportLambda/ImportServiceHandler\\.class$' || (echo 'ERROR: Handler class not found in JAR!' && exit 1)
       - echo "Computing SHA256 for deployed JAR..."
-      - "sha256sum target/events-sync-lambda.jar | tee jar.sha256"
+      - sha256sum target/events-sync-lambda.jar | tee jar.sha256
       - echo "Listing target dir:"
       - ls -lh target/
 
+
 artifacts:
   files:
-    - events-sync-lambda.zip
+    - target/events-sync-lambda.jar
     - jar.sha256
   discard-paths: yes
