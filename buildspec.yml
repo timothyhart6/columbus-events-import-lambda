@@ -12,19 +12,15 @@ phases:
   build:
     commands:
       - echo Build started on `date`
-      - mvn clean package -DskipTests
+      - mvn clean package
       - echo Build completed on `date`
 
   post_build:
     commands:
-      - echo Packaging Lambda artifact...
-      - mkdir -p output
-      # Copy the shaded JAR — update if your <finalName> is different
-      - cp target/events-sync-lambda.jar output/
-#      - echo Listing output directory for verification:
-      - ls -lh output/
+      - echo Build finished, showing target dir...
+      - ls -lh target/
 
 artifacts:
   files:
-    - output/events-sync-lambda.jar   # explicitly match the JAR
+    - target/events-sync-lambda.jar
   discard-paths: yes
