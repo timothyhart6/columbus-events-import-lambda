@@ -118,6 +118,7 @@
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <filters>
                                 <filter>
+                                    <!-- Don’t bundle Lambda core classes, AWS provides them -->
                                     <artifact>com.amazonaws:aws-lambda-java-core</artifact>
                                     <excludes>
                                         <exclude>**</exclude>
