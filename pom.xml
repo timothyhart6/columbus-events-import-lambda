@@ -102,6 +102,7 @@
     </dependencies>
 
     <build>
+        <finalName>events-sync-lambda</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -114,8 +115,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <!-- ✅ Always produce -all.jar -->
-                            <finalName>events-sync-lambda</finalName>
+                            <!-- Shade will also overwrite to events-sync-lambda.jar -->
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <filters>
                                 <filter>
