@@ -102,7 +102,6 @@
     </dependencies>
 
     <build>
-        <finalName>events-sync-lambda</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -115,11 +114,10 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <!-- Shade will also overwrite to events-sync-lambda.jar -->
+                            <finalName>events-sync-lambda</finalName>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <filters>
                                 <filter>
-                                    <!-- Don’t bundle Lambda core classes, AWS provides them -->
                                     <artifact>com.amazonaws:aws-lambda-java-core</artifact>
                                     <excludes>
                                         <exclude>**</exclude>
