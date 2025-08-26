@@ -24,7 +24,7 @@ phases:
 
   post_build:
     commands:
-      - - aws lambda update-function-code --function-name ColumbusEventsImportFunction --zip-file fileb://target/events-sync-lambda.jar
+      - aws lambda update-function-code --function-name ColumbusEventsImportFunction --zip-file fileb://target/events-sync-lambda.jar
 
 #      - echo "Verifying JAR contents..."
 #      - "jar tf target/events-sync-lambda.jar | grep -E '^org/columbusEventsImportLambda/ImportServiceHandler\\.class$' || (echo 'ERROR: Handler class not found in JAR!' && exit 1)"
