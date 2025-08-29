@@ -117,6 +117,7 @@
                         <configuration>
                             <finalName>events-import-lambda</finalName>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
                             <filters>
                                 <filter>
                                     <!-- Don’t bundle Lambda core classes, AWS provides them -->
