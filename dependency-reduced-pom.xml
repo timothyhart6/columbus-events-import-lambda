@@ -11,18 +11,19 @@
         <version>3.5.3</version>
         <executions>
           <execution>
-            <id>shade-jar-with-dependencies</id>
             <phase>package</phase>
             <goals>
               <goal>shade</goal>
             </goals>
             <configuration>
-              <artifactSet>
-                <excludes>
-                  <exclude>org.apache.tomcat.embed:*</exclude>
-                </excludes>
-              </artifactSet>
               <finalName>events-import-lambda</finalName>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>shaded</shadedClassifierName>
+              <transformers>
+                <transformer>
+                  <mainClass>com.yourpackage.YourMainClass</mainClass>
+                </transformer>
+              </transformers>
             </configuration>
           </execution>
         </executions>
