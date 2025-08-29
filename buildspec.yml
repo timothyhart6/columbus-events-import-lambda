@@ -5,26 +5,26 @@ phases:
     runtime-versions:
       java: corretto17
     commands:
-#      - echo "Using Java 17..."
-#      - java -version
+      - echo "Using pre-installed Maven..."
       - mvn --version
 
   pre_build:
     commands:
       - echo Resolving dependencies...
       - mvn install -DskipTests
-      -
+
   build:
     commands:
-#      - echo "Build started on `date`"
+      - echo Building the project...
       - mvn clean package
-#      - echo "Build completed on `date`"
-      - cp target/events-sync-lambda.jar .
-      - zip events-sync-lambda.zip events-sync-lambda.jar
 
   post_build:
     commands:
-      - aws lambda update-function-code --function-name ColumbusEventsImportFunction --zip-file fileb://target/events-sync-lambda.jar
+      - echo Uploading package to S3...
+      - aws s3 cp target/events-import-lambda.jar s3://columbusimports3/events-import-lambda.jar
+      - echo Deploying to Lambda function...
+      - aws lambda update-function-code --function-name ColumbusEventsImportFunction --s3-bucket columbusimports3 --s3-key events-import-lambda.jar
+      - echo Lambda function has been deployed
 
 #      - echo "Verifying JAR contents..."
 #      - "jar tf target/events-sync-lambda.jar | grep -E '^org/columbusEventsImportLambda/ImportServiceHandler\\.class$' || (echo 'ERROR: Handler class not found in JAR!' && exit 1)"
@@ -36,6 +36,10 @@ phases:
 
 artifacts:
   files:
-    - target/events-sync-lambda.jar
+    - target/*.jar
 #    - jar.sha256
   discard-paths: yes
+
+cache:
+  paths:
+    - ~/.m2/**/*
