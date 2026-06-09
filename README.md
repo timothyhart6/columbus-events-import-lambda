@@ -1,0 +1,3 @@
+The intent of this application is to allow the user to add future events to an AWS DynamoDB, which the columbus-events-alert-service application will read from (daily). It reads from a google sheet (populated from a google form the user submits) and adds the event to the table. The reason for the form is to capture unique events that would are not available via API call, or web scraping.
+
+This application runs daily as part of an AWS step function. After this application runs (and updates the table), the columbus-events-alert-service application run and sends out a text message to the user with all the events going on in Columbus for that day.
