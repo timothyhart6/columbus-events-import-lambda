@@ -65,6 +65,23 @@ public class GoogleSheetServiceTest {
     }
 
     @Test
+    void normalizeDateConvertsToMMddyyyy() {
+        assertEquals("10-28-2026", GoogleSheetService.normalizeDate("10-28-2026"));
+        assertEquals("10-28-2026", GoogleSheetService.normalizeDate("10/28/2026"));
+        assertEquals("10-28-2026", GoogleSheetService.normalizeDate("10-28-26"));
+        assertEquals("10-28-2026", GoogleSheetService.normalizeDate("10/28/26"));
+        assertEquals("02-05-2026", GoogleSheetService.normalizeDate("2/5/2026"));
+        assertEquals("02-05-2026", GoogleSheetService.normalizeDate(" 2-5-26 "));
+    }
+
+    @Test
+    void normalizeDateReturnsOriginalWhenUnparseable() {
+        assertEquals("", GoogleSheetService.normalizeDate(""));
+        assertEquals("TBD", GoogleSheetService.normalizeDate("TBD"));
+        assertEquals("13/45/2026", GoogleSheetService.normalizeDate("13/45/2026"));
+    }
+
+    @Test
     void fetchEventsHandlesNullRequestFactory() {
         //Unit test will not have credentials, which creates behavior needed for this test
         GoogleSheetService sheetService = new GoogleSheetService();
