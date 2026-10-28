@@ -16,6 +16,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +27,11 @@ import java.util.Map;
 
 @Slf4j
 public class GoogleSheetService {
+
+    // Accepts M-d-yy, MM-dd-yyyy, M/d/yyyy, etc. ("/" is converted to "-" before parsing)
+    private static final DateTimeFormatter INPUT_DATE_FORMAT =
+            DateTimeFormatter.ofPattern("M-d-[uuuu][uu]").withResolverStyle(ResolverStyle.STRICT);
+    private static final DateTimeFormatter OUTPUT_DATE_FORMAT = DateTimeFormatter.ofPattern("MM-dd-uuuu");
 
     HttpRequestFactory requestFactory;
 
@@ -104,7 +113,7 @@ public class GoogleSheetService {
                         .rowNumber(i + 1 + 1) // +1 for 0-based index, +1 for header row (assumes A2:D starts at row 2)
                         .locationName(getSafeString(row, 0))
                         .eventName(getSafeString(row, 1))
-                        .date(getSafeString(row, 2))
+                        .date(normalizeDate(getSafeString(row, 2)))
                         .time(getSafeString(row, 3))
                         .isBadTraffic(parseBoolean(row, 4))
                         .isDesiredEvent(parseBoolean(row, 5))
@@ -117,6 +126,20 @@ public class GoogleSheetService {
 
     private String getSafeString(JsonNode row, int index) {
         return row.has(index) ? row.get(index).asText() : "";
+    }
+
+    static String normalizeDate(String date) {
+        String trimmed = date.trim();
+        if (trimmed.isEmpty()) {
+            return trimmed;
+        }
+        try {
+            LocalDate parsed = LocalDate.parse(trimmed.replace("/", "-"), INPUT_DATE_FORMAT);
+            return parsed.format(OUTPUT_DATE_FORMAT);
+        } catch (DateTimeParseException e) {
+            log.warn("Unable to normalize date '{}', using value as-is", date);
+            return trimmed;
+        }
     }
 
     private boolean parseBoolean(JsonNode row, int index) {
