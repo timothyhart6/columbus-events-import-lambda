@@ -21,7 +21,7 @@
               <shadedClassifierName>shaded</shadedClassifierName>
               <transformers>
                 <transformer>
-                  <mainClass>com.yourpackage.YourMainClass</mainClass>
+                  <mainClass>org.columbusEventsImportLambda.ImportServiceHandler</mainClass>
                 </transformer>
               </transformers>
             </configuration>
